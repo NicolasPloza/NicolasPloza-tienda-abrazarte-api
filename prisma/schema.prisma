@@ -1,0 +1,38 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Agregamos un modelo inicial para que Prisma pueda generar sus tipos y clases
+model Categoria {
+  id          Int        @id @default(autoincrement())
+  nombre      String     @unique @db.VarChar(50)
+  descripcion String?    @db.VarChar(255)
+  productos   Producto[]
+}
+
+model Producto {
+  id                     Int            @id @default(autoincrement())
+  nombre                 String         @db.VarChar(100)
+  descripcion            String?        @db.Text
+  precio                 Decimal        @db.Decimal(10, 2)
+  stock                  Int            @default(0)
+  permitePersonalizacion Boolean        @default(false)
+  categoriaId            Int
+  categoria              Categoria      @relation(fields: [categoriaId], references: [id])
+  fotos                  FotoProducto[]
+  createdAt              DateTime       @default(now())
+}
+
+model FotoProducto {
+  id         Int      @id @default(autoincrement())
+  url        String   @db.VarChar(500)
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  orden      Int      @default(0)
+  esPrincipal Boolean @default(false)
+  createdAt  DateTime @default(now())
+}
