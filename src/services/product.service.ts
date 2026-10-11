@@ -20,4 +20,18 @@ export class ProductService{
             },
         });
     }    
+
+    /**
+   * Busca y obtiene un unico producto por su ID
+   * Devuelve el producto o 'null' si no existe en la base de datos
+   */
+    async obtenerProductoPorId(id: number): Promise<Producto|null>{
+        return await prisma.producto.findUnique({
+            where: {id}, //esto es lo mismo que poner {id: id} uno es la prop y la otra es el param
+            include: {
+                categoria: true,
+                fotos: true,
+            },
+        });
+    }
 }
