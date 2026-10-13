@@ -24,6 +24,7 @@ model Producto {
   categoriaId            Int
   categoria              Categoria      @relation(fields: [categoriaId], references: [id])
   fotos                  FotoProducto[]
+  itemsCarrito           ItemCarrito[]
   createdAt              DateTime       @default(now())
 }
 
@@ -35,4 +36,21 @@ model FotoProducto {
   orden      Int      @default(0)
   esPrincipal Boolean @default(false)
   createdAt  DateTime @default(now())
+}
+
+model Carrito {
+  id        Int           @id @default(autoincrement())
+  sessionId String        @unique @db.VarChar(100) // Identificador de sesión temporal
+  items     ItemCarrito[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ItemCarrito {
+  id         Int      @id @default(autoincrement())
+  carritoId  Int
+  carrito    Carrito  @relation(fields: [carritoId], references: [id], onDelete: Cascade)
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
+  cantidad   Int      @default(1)
 }
