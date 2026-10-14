@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import productRoutes from './routes/product.routes';
 import cartRoutes from './routes/cart.routes';
+import orderRoutes from './routes/order.routes'
 
 const app: Application = express();
 
@@ -21,5 +22,6 @@ app.get('/health', (req: Request, res: Response) => {
 // Rutas de la API (v1)
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/cart', cartRoutes);
+app.use('/api/v1/orders', orderRoutes);
 
 export default app;

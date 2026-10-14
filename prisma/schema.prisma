@@ -25,6 +25,7 @@ model Producto {
   categoria              Categoria      @relation(fields: [categoriaId], references: [id])
   fotos                  FotoProducto[]
   itemsCarrito           ItemCarrito[]
+  itemsOrden             ItemOrden[] 
   createdAt              DateTime       @default(now())
 }
 
@@ -36,6 +37,46 @@ model FotoProducto {
   orden      Int      @default(0)
   esPrincipal Boolean @default(false)
   createdAt  DateTime @default(now())
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(150)
+  password  String   @db.VarChar(255)
+  nombre    String   @db.VarChar(100)
+  ordenes   Orden[]
+  createdAt DateTime @default(now())
+}
+
+enum EstadoOrden {
+  PENDIENTE
+  PAGADO
+  ENVIADO
+  CANCELADO
+}
+
+model Orden {
+  id            Int         @id @default(autoincrement())
+  nombreCliente String      @db.VarChar(100)
+  emailCliente  String      @db.VarChar(150)
+  telefono      String      @db.VarChar(50)
+  direccion     String      @db.Text
+  total         Decimal     @db.Decimal(10, 2)
+  estado        EstadoOrden @default(PENDIENTE)
+  usuarioId     Int?
+  usuario       Usuario?    @relation(fields: [usuarioId], references: [id])
+  items         ItemOrden[]
+  createdAt     DateTime    @default(now())
+}
+
+model ItemOrden {
+  id             Int      @id @default(autoincrement())
+  ordenId        Int
+  orden          Orden    @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id])
+  cantidad       Int
+  precioUnitario Decimal  @db.Decimal(10, 2)
 }
 
 model Carrito {
