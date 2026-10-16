@@ -1,15 +1,14 @@
-import { Router } from "express";
-import { addItem, deleteItem, getCart } from "../controllers/cart.controller";
+import { Router, Request, Response, NextFunction } from 'express';
+import { getCart, addItem } from '../controllers/cart.controller';
+import jwt from 'jsonwebtoken';
+import { identificarUsuarioOpcional } from '../middlewares/auth.middlewares';
 
 const router = Router();
 
-//GET /api/v1/cart
-router.get('/', getCart);
 
-//POST /api/v1/cart/items
-router.post('/items', addItem);
 
-//DELETE /api/v1/cart/items/:id
-router.delete('/items/:id', deleteItem);
+// Aplicamos el identificador opcional a las rutas del carrito
+router.get('/', identificarUsuarioOpcional, getCart);
+router.post('/items', identificarUsuarioOpcional, addItem);
 
 export default router;

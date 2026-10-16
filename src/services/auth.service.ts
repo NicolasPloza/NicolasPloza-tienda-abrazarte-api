@@ -1,13 +1,10 @@
 import { prisma } from '../lib/prisma';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import jwtNative from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import {env} from '../config/env.config'
 
 
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = env.JWT_SECRET;
 
 export interface DatosRegistro {
   nombre: string;
@@ -88,6 +85,7 @@ export class AuthService {
                 id: usuario.id,
                 nombre: usuario.nombre,
                 email: usuario.email,
+                rol: usuario.rol,
             },
             token,
         };

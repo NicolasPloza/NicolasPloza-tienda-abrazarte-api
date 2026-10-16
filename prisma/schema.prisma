@@ -39,19 +39,27 @@ model FotoProducto {
   createdAt  DateTime @default(now())
 }
 
+enum RolUsuario {
+  CLIENTE
+  ADMINISTRADOR
+}
+
 model Usuario {
   id        Int      @id @default(autoincrement())
   email     String   @unique @db.VarChar(150)
   password  String   @db.VarChar(255)
   nombre    String   @db.VarChar(100)
+  rol       RolUsuario @default(CLIENTE)
   ordenes   Orden[]
+  carritos  Carrito[]
   createdAt DateTime @default(now())
 }
 
 enum EstadoOrden {
-  PENDIENTE
+  PENDIENTE_PAGO
   PAGADO
   ENVIADO
+  ENTREGADO
   CANCELADO
 }
 
@@ -62,7 +70,7 @@ model Orden {
   telefono      String      @db.VarChar(50)
   direccion     String      @db.Text
   total         Decimal     @db.Decimal(10, 2)
-  estado        EstadoOrden @default(PENDIENTE)
+  estado        EstadoOrden @default(PENDIENTE_PAGO)
   usuarioId     Int?
   usuario       Usuario?    @relation(fields: [usuarioId], references: [id])
   items         ItemOrden[]
@@ -81,7 +89,9 @@ model ItemOrden {
 
 model Carrito {
   id        Int           @id @default(autoincrement())
-  sessionId String        @unique @db.VarChar(100) // Identificador de sesión temporal
+  sessionId String?        @unique @db.VarChar(100) // Identificador de sesión temporal
+  usuarioId Int?          @unique                  // Opcional si es usuario registrado
+  usuario   Usuario?      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   items     ItemCarrito[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt

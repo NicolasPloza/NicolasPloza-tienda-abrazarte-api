@@ -67,3 +67,41 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
         });
     }
 };
+
+// --- RUTAS ADMINISTRATIVAS ---
+
+export const createProduct = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { nombre, precio, stock, categoriaId } = req.body;
+
+        if (!nombre || precio === undefined || stock === undefined || !categoriaId) {
+            res.status(400).json({ success: false, message: 'Faltan campos obligatorios para el producto.' });
+            return;
+        }
+
+        const nuevoProducto = await productService.crearProducto(req.body);
+        res.status(201).json({ success: true, data: nuevoProducto });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al crear el producto.' });
+    }
+};
+
+export const updateProduct = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const id = Number(req.params.id);
+        const productoActualizado = await productService.actualizarProducto(id, req.body);
+        res.status(200).json({ success: true, data: productoActualizado });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al actualizar el producto.' });
+    }
+};
+
+export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const id = Number(req.params.id);
+        await productService.eliminarProducto(id);
+        res.status(200).json({ success: true, message: 'Producto eliminado correctamente.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al eliminar el producto.' });
+    }
+};

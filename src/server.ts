@@ -4,7 +4,7 @@ import app from './app';
 // Cargar variables de entorno del archivo .env
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 // Iniciar el servidor HTTP
 app.listen(PORT, () => {

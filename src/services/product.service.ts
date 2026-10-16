@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { Producto } from "@prisma/client";
+import { ProductoInput } from "../types/interfaces";
 
 export class ProductService{
     /**
@@ -32,6 +33,71 @@ export class ProductService{
                 categoria: true,
                 fotos: true,
             },
+        });
+    }
+
+    // --- MÉTODOS DE ADMINISTRACIÓN ---
+
+  /**
+   * Crea un nuevo producto junto con sus fotos asociadas.
+   */
+  async crearProducto(datos: ProductoInput) {
+    const { fotos, ...datosProducto } = datos;
+
+    return await prisma.producto.create({
+      data: {
+        ...datosProducto,
+        fotos: fotos && fotos.length > 0 ? {
+          create: fotos.map((f, index) => ({
+            url: f.url,
+            orden: f.orden ?? index,
+            esPrincipal: f.esPrincipal ?? (index === 0),
+          })),
+        } : undefined,
+      },
+      include: {
+        categoria: true,
+        fotos: { orderBy: { orden: 'asc' } },
+      },
+    });
+  }
+
+    /**
+     * Actualiza un producto existente y reemplaza sus fotos si se envían nuevas.
+     */
+    async actualizarProducto(id: number, datos: Partial<ProductoInput>) {
+        const { fotos, ...datosProducto } = datos;
+
+        return await prisma.$transaction(async (tx) => {
+            if (fotos) {
+                await tx.fotoProducto.deleteMany({ where: { productoId: id } });
+                await tx.fotoProducto.createMany({
+                    data: fotos.map((f, index) => ({
+                        productoId: id,
+                        url: f.url,
+                        orden: f.orden ?? index,
+                        esPrincipal: f.esPrincipal ?? (index === 0),
+                    })),
+                });
+            }
+
+            return await tx.producto.update({
+                where: { id },
+                data: datosProducto,
+                include: {
+                categoria: true,
+                fotos: { orderBy: { orden: 'asc' } },
+                },
+            });
+        });
+    }
+
+    /**
+     * Elimina un producto de la base de datos por su ID.
+     */
+    async eliminarProducto(id: number) {
+        return await prisma.producto.delete({
+            where: { id },
         });
     }
 }

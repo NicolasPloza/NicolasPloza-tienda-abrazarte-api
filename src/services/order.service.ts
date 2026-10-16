@@ -1,16 +1,10 @@
+import { EstadoOrden } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+import { DatosCheckout } from '../types/interfaces';
 import { EmailService } from './email.service';
 
 const emailService = new EmailService();
 
-export interface DatosCheckout {
-    sessionId: string;
-    nombreCliente: string;
-    emailCliente: string;
-    telefono: string;
-    direccion: string;
-    usuarioId?: number; // Opcional: solo presente si el usuario ya está registrado
-}
 
 export class OrderService {
     /**
@@ -19,7 +13,7 @@ export class OrderService {
     async procesarCheckout(datos: DatosCheckout) {
         // 1. Obtener el carrito de compras asociado a la sesión
         const carrito = await prisma.carrito.findUnique({
-            where: { sessionId: datos.sessionId },
+            where: datos.usuarioId? { usuarioId: datos.usuarioId } : { sessionId: datos.sessionId },
             include: {
                 items: {
                     include: { producto: true },
@@ -87,9 +81,56 @@ export class OrderService {
             return nuevaOrden;
         });
 
-    // 5. Enviar las notificaciones por correo electrónico con Resend
-    emailService.enviarConfirmacionCompra(ordenCreada);
+        // 5. Enviar las notificaciones por correo electrónico con Resend
+        emailService.enviarConfirmacionCompra(ordenCreada);
 
-    return ordenCreada;
-  }
+        return ordenCreada;
+    }
+
+    /**
+    * Obtiene el historial de órdenes pertenecientes a un usuario registrado
+    */
+    async obtenerOrdenesPorUsuario(usuarioId: number) {
+        return await prisma.orden.findMany({
+            where:{usuarioId},
+            include:{
+                items:{
+                    include:{producto:true}
+                },
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+    }
+
+
+    // ------ MÉTODOS DE ADMINISTRACIÓN -------
+
+    /**
+    * Obtiene todas las órdenes del sistema con filtro opcional por estado.
+    */
+    async obtenerTodasLasOrdenes(estado?: EstadoOrden) {
+        return await prisma.orden.findMany({
+            where: estado ? { estado } : undefined,
+            include: {
+                items: { include: { producto: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    /**
+     * Cambia el estado operativo de una orden.
+     */
+    async cambiarEstadoOrden(ordenId: number, nuevoEstado: EstadoOrden) {
+        return await prisma.orden.update({
+            where: { id: ordenId },
+            data: { estado: nuevoEstado },
+            include: {
+                items: { include: { producto: true } },
+            },
+        });
+    }
+
 }

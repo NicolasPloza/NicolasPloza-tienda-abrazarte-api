@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
-import { json } from "node:stream/consumers";
 
 const authService = new AuthService();
 
