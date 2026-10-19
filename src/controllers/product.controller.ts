@@ -71,7 +71,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 // --- RUTAS ADMINISTRATIVAS ---
 
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
-    try {
+    try { 
         const { nombre, precio, stock, categoriaId } = req.body;
 
         if (!nombre || precio === undefined || stock === undefined || !categoriaId) {
@@ -103,5 +103,36 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
         res.status(200).json({ success: true, message: 'Producto eliminado correctamente.' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error al eliminar el producto.' });
+    }
+};
+
+/**
+ * POST /api/v1/products/upload-image
+ * Controlador que procesa el archivo subido a Cloudinary y devuelve la URL generada
+ */
+export const uploadProductImage = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // req.file es provisto por el middleware de Multer tras subir la imagen a Cloudinary
+        if (!req.file) {
+            res.status(400).json({
+                success: false,
+                message: 'No se ha proporcionado ningún archivo de imagen.',
+            });
+            return;
+        }
+
+        // req.file.path contiene la URL pública HTTPS de Cloudinary
+        const urlImagen = req.file.path;
+
+        res.status(200).json({
+            success: true,
+            message: 'Imagen subida con éxito a Cloudinary.',
+            data: { url: urlImagen },
+        });
+    } catch (error) {
+        res.status(500).json({
+        success: false,
+        message: 'Error interno al procesar la subida de la imagen.',
+        });
     }
 };

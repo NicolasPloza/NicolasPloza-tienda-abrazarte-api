@@ -82,3 +82,18 @@ export const addItem = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ success: false, message: 'Error al agregar ítem al carrito.' });
   }
 };
+
+/**
+ * DELETE /api/v1/cart/items/:id
+ * Elimina un producto del carrito del usuario actual
+ */
+
+export const deleteItem = async (req: Request, res: Response): Promise<void> => {
+  try{
+    const itemId = Number(req.params.id);
+    await cartService.eliminarItem(itemId);
+    res.status(200).json({success: true, message:'Item eliminado correctamente.'});
+  }catch(error){
+    res.status(500).json({success: false, message: "Error al eliminar Item."});
+  }
+}; 

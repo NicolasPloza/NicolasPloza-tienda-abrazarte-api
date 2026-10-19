@@ -93,7 +93,7 @@ export class AuthService {
 
     private generarToken(usuarioId: number, email: string):string{
         return jwtNative.sign({id: usuarioId,email},JWT_SECRET as string,{
-            expiresIn:'24h', // El token expira en 24 horas
+            expiresIn:'8h', // El token expira en 24 horas
         });
     } 
 }

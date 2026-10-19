@@ -8,7 +8,7 @@ const router = Router();
 // POST /api/v1/orders/checkout (Acepta compras de usuarios e invitados)
 router.post('/checkout',identificarUsuarioOpcional, checkout);
 
-//// POST /api/v1/orders/my-orders
+//// GET /api/v1/orders/my-orders
 router.get('/my-orders',autenticarToken,getMyOrders);
 
 

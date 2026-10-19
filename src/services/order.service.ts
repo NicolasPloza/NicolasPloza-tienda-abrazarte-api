@@ -73,9 +73,10 @@ export class OrderService {
                 });
             }
 
-            // c. Vaciar el carrito de la sesión
-            await tx.itemCarrito.deleteMany({
-                where: { carritoId: carrito.id },
+            // c. BORRADO COMPLETO DEL CARRITO:
+            // Eliminamos la entidad Carrito entera de la base de datos
+            await tx.carrito.delete({
+                where: { id: carrito.id },
             });
 
             return nuevaOrden;

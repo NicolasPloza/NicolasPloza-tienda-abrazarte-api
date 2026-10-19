@@ -3,9 +3,11 @@ import { getProducts,
     getProductById, 
     createProduct, 
     updateProduct, 
-    deleteProduct } from "../controllers/product.controller";
+    deleteProduct, 
+    uploadProductImage} from "../controllers/product.controller";
 import { autenticarToken } from "../middlewares/auth.middlewares";
 import { autorizarAdmin } from "../middlewares/admin.middlewares";
+import { uploadMiddleware } from "../services/upload.service";
 
 
 const router = Router();
@@ -28,5 +30,15 @@ router.put('/:id', autenticarToken, autorizarAdmin, updateProduct);
 
 //DELETE /api/v1/products/:id
 router.delete('/:id', autenticarToken, autorizarAdmin, deleteProduct);
+
+//POST /api/v1/products/upload-image
+// Ruta para subir imagen: Protegida + Middleware Multer + Controlador dedicado
+router.post(
+  '/upload-image',
+  autenticarToken,
+  autorizarAdmin,
+  uploadMiddleware.single('imagen'), // Procesa el campo 'imagen' del formulario (lib Multer)
+  uploadProductImage 
+);
 
 export default router;
